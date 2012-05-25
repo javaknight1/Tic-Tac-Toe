@@ -1,4 +1,11 @@
-
+/** 
+ * This is the HashTable class. Very little was changed to this class. 
+ * 
+ * @version 5/9/2012
+ * @author Rob Avery <pw97976@umbc.edu>
+ * CMSC 341 - Spring 2012 - Project 4
+ * Section 02
+ */
 // QuadraticProbing Hash table class
 //
 // CONSTRUCTION: an approximate initial size or default of 101
@@ -18,13 +25,16 @@
 
 package proj4;
 
-public class QuadraticProbingHashTable<AnyType>
-{
+import java.io.Serializable;
+
+@SuppressWarnings("serial")
+public class QuadraticProbingHashTable<AnyType> implements Serializable {
 	
     private static final int DEFAULT_TABLE_SIZE = 11;
 
     private HashEntry<AnyType> [ ] array; // The array of elements
     private int currentSize;              // The number of occupied cells
+    private int collision;				  //number of recorded collisions
     
     /**
      * Construct the hash table.
@@ -44,6 +54,37 @@ public class QuadraticProbingHashTable<AnyType>
         makeEmpty( );
     }
 
+    /**
+     * Gives the number of buckets of the hash Table
+     * @return - the saved hashEntries array length
+     */
+    public int bucket(){
+    	return array.length;
+    }
+    
+    /**
+     * Gives the number of entries in the hashTable
+     * @return the saved has Table's size
+     */
+    public int entries(){
+    	return currentSize;
+    }
+    
+    /**
+     * Returns the number times the Hash Table collided
+     * @return number of collisions
+     */
+    public int collision(){
+    	return collision;
+    }
+    
+    /**
+     * Returns the percentage of the Hash Table thats full
+     * @return percent of full hash Table
+     */
+    public double fullPercent(){   	
+    	return ( (double)currentSize / (double)array.length ) * 100;
+    }
     /**
      * Insert into the hash table. If the item is
      * already present, do nothing.
@@ -91,9 +132,9 @@ public class QuadraticProbingHashTable<AnyType>
         int offset = 1;
         int currentPos = myhash( x );
         
-        while( array[ currentPos ] != null &&
-                !array[ currentPos ].element.equals( x ) )
+        while( array[ currentPos ] != null && !array[ currentPos ].element.equals( x ) )
         {
+        	collision++;
             currentPos += offset;  // Compute ith probe
             offset += 2;
             if( currentPos >= array.length )
@@ -124,6 +165,15 @@ public class QuadraticProbingHashTable<AnyType>
         int currentPos = findPos( x );
         return isActive( currentPos );
     }
+    
+    public AnyType find( AnyType x ){
+    	
+    	if( !contains(x) )
+    		return x;
+    	
+    	return array[ findPos(x) ].element;
+    	
+    }
 
     /**
      * Return true if currentPos exists and is active.
@@ -141,6 +191,7 @@ public class QuadraticProbingHashTable<AnyType>
     public void makeEmpty( )
     {
         currentSize = 0;
+        collision = 0;
         for( int i = 0; i < array.length; i++ )
             array[ i ] = null;
     }
@@ -156,15 +207,9 @@ public class QuadraticProbingHashTable<AnyType>
         return hashVal;
     }
     
-    private static class HashEntry<AnyType>
-    {
+    private static class HashEntry<AnyType> implements Serializable {
         public AnyType  element;   // the element
         public boolean isActive;  // false if marked deleted
-
-        public HashEntry( AnyType e )
-        {
-            this( e, true );
-        }
 
         public HashEntry( AnyType e, boolean i )
         {
@@ -223,4 +268,5 @@ public class QuadraticProbingHashTable<AnyType>
         return true;
     }
 
+    
 }
